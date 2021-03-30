@@ -1,0 +1,8 @@
+setup.py
+src/momi/__init__.py
+src/momi/momi.py
+src/momi.egg-info/PKG-INFO
+src/momi.egg-info/SOURCES.txt
+src/momi.egg-info/dependency_links.txt
+src/momi.egg-info/requires.txt
+src/momi.egg-info/top_level.txt
