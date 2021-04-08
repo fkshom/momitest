@@ -1,0 +1,6 @@
+dcname: dc01
+pgname: pg01
+---
+description, action, source_ip, destination_ip, source_port, destination_port, protocol, comment
+abcdf, , 192.168.11.1/32, 192.168.12.1/32, ANY, ANY, ANY, cmt
+efgh, , 192.168.11.1/32, 192.168.12.1/32, ANY, ANY, ANY, 
