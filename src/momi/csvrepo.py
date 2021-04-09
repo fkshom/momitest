@@ -1,11 +1,56 @@
 from pprint import pprint as pp
 import re
+import cerberus
 
 RULE_LABELS = "description,action,source_ip,destination_ip,source_port,destination_port,protocol,comment".split(',')
+
+decimal_type = cerberus.TypeDefinition('decimal', (str,), ())
+
+class RuleStoreValidator(cerberus.Validator):
+    def _check_with_ipaddr(self, field, value):
+        if not re.fullmatch(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}", value):
+            self._error(field, f"'{field}' must be x.x.x.x/x")
+
+
+    def _check_with_sum_eq_one(self, field, value):
+        """ Checks whether value is a list and its sum equals 1.0. """
+        if isinstance(value, list) and sum(value) != 1.0:
+            self._error(str(value), f"Sum of '{field}' must exactly equal 1")
 
 class RuleStore():
     def __init__(self):
         self.rules = []
+        self._schema = {
+            "key1": {
+                "type": ["float", "list"],
+                "min": 0,
+                "max": 1,
+                "check_with": "sum_eq_one"
+            },
+            "description": {
+                "type": 'string'
+            },
+            "action": {
+                "type": 'string',
+                "allowed": ["accept", "drop", ""]
+            },
+            "source_ip": {
+                "type": "string",
+                "check_with": "ipaddr"
+            },
+            "destination_ip": {
+                "type": "string",
+                "check_with": "ipaddr"
+            }
+        }
+
+    def validate(self):
+        v = RuleStoreValidator(self._schema)
+        v.validate(self.__dir__)
+        if v.errors:
+            pp(v.errors)
+            raise ""
+
 
     def load(self, filename):
         lines = None
