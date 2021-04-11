@@ -4,38 +4,17 @@ import momi.csvrepo as csvrepo
 from unittest.mock import patch
 from pyVmomi import vim
 
-class xTestRuleStoreValidator:
+class TestRuleStoreValidator:
     def test_1(self):
-        schema2 = {
-            "key1": {
-                "type": ["float", "list"],
-                "min": 0,
-                "max": 1,
-                "check_with": "sum_eq_one"
-            },
-            "description": {
-                "type": 'string'
-            },
-            "action": {
-                "type": 'string',
-                "allowed": ["accept", "drop", ""]
-            },
-            "source_ip": {
-                "type": "string",
-                "check_with": "ipaddr"
-            },
-            "destination_ip": {
-                "type": "string",
-                "check_with": "ipaddr"
-            }
-        }
-        v = csvrepo.RuleStoreValidator(schema2)
+        v = csvrepo.RuleStoreValidator()
         v.validate({
-            "key1": 1,
             "description": "",
             "action": "accept",
             "source_ip": '1.1.1.1/24',
-            "destination_ip": "2.2.2f.2/24"
+            "destination_ip": "2.2.2.2/24",
+            "source_port": "32768-65535",
+            "destination_port": "80",
+            "protocol": "tcp",
         })
         assert v.errors == {}
 

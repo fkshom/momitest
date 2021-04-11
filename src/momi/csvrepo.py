@@ -7,26 +7,9 @@ RULE_LABELS = "description,action,source_ip,destination_ip,source_port,destinati
 decimal_type = cerberus.TypeDefinition('decimal', (str,), ())
 
 class RuleStoreValidator(cerberus.Validator):
-    def _check_with_ipaddr(self, field, value):
-        if not re.fullmatch(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}", value):
-            self._error(field, f"'{field}' must be x.x.x.x/x")
-
-
-    def _check_with_sum_eq_one(self, field, value):
-        """ Checks whether value is a list and its sum equals 1.0. """
-        if isinstance(value, list) and sum(value) != 1.0:
-            self._error(str(value), f"Sum of '{field}' must exactly equal 1")
-
-class RuleStore():
     def __init__(self):
-        self.rules = []
-        self._schema = {
-            "key1": {
-                "type": ["float", "list"],
-                "min": 0,
-                "max": 1,
-                "check_with": "sum_eq_one"
-            },
+        super().__init__()
+        self.schema = {
             "description": {
                 "type": 'string'
             },
@@ -41,11 +24,33 @@ class RuleStore():
             "destination_ip": {
                 "type": "string",
                 "check_with": "ipaddr"
+            },
+            "source_port": {
+                "type": "string",
+                "regex": r"\d+|\d+-\d+"
+            },
+            "destination_port": {
+                "type": "string",
+                "regex": r"\d+|\d+-\d+"
+            },
+            "protocol": {
+                "type": "string",
+                "allowed": ["tcp", "ucp", "arp", "any"]
             }
         }
+        self.require_all = True
+        self.allow_unknown = False
+    
+    def _check_with_ipaddr(self, field, value):
+        if not re.fullmatch(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}|ANY", value):
+            self._error(field, f"'{field}' must be x.x.x.x/x or ANY")
+
+class RuleStore():
+    def __init__(self):
+        self.rules = []
 
     def validate(self):
-        v = RuleStoreValidator(self._schema)
+        v = RuleStoreValidator()
         v.validate(self.__dir__)
         if v.errors:
             pp(v.errors)
